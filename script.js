@@ -25,40 +25,34 @@ function operate(operator, a, b) {
 
 const calculator = {
     memory: 0,
+    currentValue: null,
     operator: null,
     displayValue: 0,
-    newOperand: false,
-    newInput: false,
     chained: false,
     setOperator(op) {
-        //this.displayValue = Number(this.displayValue);
+        // Handle chaining of operators without using equals
+        if(this.chained) this.calculate();
+        this.chained = true;
+
+        // Update operator
         this.operator = op;
         
         this.newOperand = true;
-        this.newInput = true;
-
-        if (this.chained) this.calculate();
-        this.chained = true;
 
         this.memory = this.displayValue;
+        this.currentValue = null;
 
-        // debug info
-        console.log("mem:", this.memory);
-        console.log("dispV:", this.displayValue);
     },
     calculate() {
-        
-        let temp = this.displayValue;
-        this.newOperand = true;
+        if (!this.currentValue) this.currentValue = this.displayValue;
+
+        if (this.currentValue === 0 && this.operator === divide) return 'ERROR: DIVISION BY ZERO';
+        if (!this.operator) return 'ERROR: NO OPERATOR';
 
         this.displayValue = Number(this.displayValue);
-        console.log("mem:", this.memory, "displayValue:", this.displayValue);
-        this.displayValue = operate(this.operator, this.memory, this.displayValue);
-
-        if (this.newInput) {    
-            this.memory = temp;
-            this.newInput = false;
-        }
+        // console.log("mem:", this.memory, "displayValue:", this.displayValue);
+        this.displayValue = operate(this.operator, this.memory, this.currentValue);
+        this.memory = this.displayValue;
 
         this.chained = false;
         
@@ -70,7 +64,8 @@ const calculator = {
         this.operator = null;
         this.memory = 0;
         this.newOperand = false;
-        this.newInput = false;
+        this.chained = false;
+        this.currentValue = null;
     }
 }; 
 
@@ -90,8 +85,6 @@ numberButtons.forEach(button => button.addEventListener('click', e => {
     else {
         calculator.displayValue = Number(String(calculator.displayValue) + String(value));
     }
-
-    console.log(calculator.displayValue);
 
     updateDisplay(calculator.displayValue);
 }));
@@ -123,9 +116,24 @@ calculateButton.addEventListener('click', e => {
     updateDisplay(calculator.calculate());
 });
 
+// Clear
 const clearButton = document.querySelector("#utils > div > button:nth-child(1)");
 clearButton.addEventListener('click', e => {
     calculator.clear();
+    updateDisplay(calculator.displayValue);
+})
+
+// Flip positive negative button
+const flipButton = document.querySelector("#utils > div > button:nth-child(2)");
+flipButton.addEventListener('click', e => {
+    calculator.displayValue *= -1;
+    updateDisplay(calculator.displayValue);
+})
+
+// Percent button
+const percentButton = document.querySelector("#utils > div > button:nth-child(3)");
+percentButton.addEventListener('click', e => {
+    calculator.displayValue /= 100;
     updateDisplay(calculator.displayValue);
 })
 
