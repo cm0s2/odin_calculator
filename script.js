@@ -141,3 +141,9 @@ function updateDisplay(value) {
     display = document.querySelector('#display');
     display.textContent = value;
 }
+
+document.addEventListener('keypress', e => {
+
+    if (e.key >= 0 && e.key <= 9) console.log(e.key);
+
+})
